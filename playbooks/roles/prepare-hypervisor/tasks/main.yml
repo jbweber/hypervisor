@@ -1,0 +1,70 @@
+---
+- name: kube repo
+  ansible.builtin.yum_repository:
+    name: kubernetes
+    description: kubernetes
+    baseurl: https://pkgs.k8s.io/core:/stable:/v1.32/rpm/
+    gpgkey: https://pkgs.k8s.io/core:/stable:/v1.32/rpm/repodata/repomd.xml.key
+    enabled: true
+    gpgcheck: true
+
+- name: install packages
+  ansible.builtin.package:
+    name:
+      - containerd
+      - iproute-tc
+      - kubeadm
+      - kubectl
+      - kubelet
+      - kubernetes-cni
+      - tmux
+    state: present
+
+- name: configure containerd
+  ansible.builtin.copy:
+    src: config.toml
+    dest: /etc/containerd/config.toml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: enable and start containerd
+  ansible.builtin.systemd_service:
+    name: containerd
+    state: started
+    enabled: true
+    masked: no
+
+- name: enable kubelet
+  ansible.builtin.systemd_service:
+    name: kubelet    
+    enabled: true
+    masked: no
+
+- name: sysctl ip route
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: true
+
+- name: configure cni
+  ansible.builtin.copy:
+    src: 10-bridge.conf
+    dest: /etc/cni/net.d/10-bridge.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: place kubevirt files directory
+  ansible.builtin.file:
+    path: /etc/hypervisor-setup
+    state: directory
+
+- name: place kubevirt files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/hypervisor-setup/{{ item }}"
+  loop:
+    - kubevirt-operator.yaml
+    - kubevirt-cr.yaml
+    - vm.yaml

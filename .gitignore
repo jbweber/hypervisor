@@ -1,0 +1,11 @@
+/terraform/.terraform
+/terraform/.terraform.lock.hcl
+/terraform/global.auto.tfvars
+/terraform/terraform.tfstate*
+/terraform/variables/local.tfvars
+/terraform/terraform.tfvars
+
+/playbooks/hosts.ini
+
+/.idea
+
