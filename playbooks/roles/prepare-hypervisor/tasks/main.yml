@@ -3,15 +3,25 @@
   ansible.builtin.yum_repository:
     name: kubernetes
     description: kubernetes
-    baseurl: https://pkgs.k8s.io/core:/stable:/v1.32/rpm/
-    gpgkey: https://pkgs.k8s.io/core:/stable:/v1.32/rpm/repodata/repomd.xml.key
+    baseurl: https://pkgs.k8s.io/core:/stable:/v1.33/rpm/
+    gpgkey: https://pkgs.k8s.io/core:/stable:/v1.33/rpm/repodata/repomd.xml.key
+    enabled: true
+    gpgcheck: true
+
+- name: cri-o repo
+  ansible.builtin.yum_repository:
+    name: cri-o
+    description: cri-o
+    baseurl: https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.33/rpm/
+    gpgkey: https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.33/rpm/repodata/repomd.xml.key
     enabled: true
     gpgcheck: true
 
 - name: install packages
   ansible.builtin.package:
     name:
-      - containerd
+      - cri-o
+      - container-selinux
       - iproute-tc
       - kubeadm
       - kubectl
@@ -19,18 +29,18 @@
       - kubernetes-cni
       - tmux
     state: present
-
-- name: configure containerd
-  ansible.builtin.copy:
-    src: config.toml
-    dest: /etc/containerd/config.toml
-    owner: root
-    group: root
-    mode: 0644
-
-- name: enable and start containerd
+#
+#- name: configure containerd
+#  ansible.builtin.copy:
+#    src: config.toml
+#    dest: /etc/containerd/config.toml
+#    owner: root
+#    group: root
+#    mode: 0644
+#
+- name: enable and start cri-o
   ansible.builtin.systemd_service:
-    name: containerd
+    name: crio
     state: started
     enabled: true
     masked: no
@@ -55,16 +65,16 @@
     group: root
     mode: 0644
 
-- name: place kubevirt files directory
-  ansible.builtin.file:
-    path: /etc/hypervisor-setup
-    state: directory
-
-- name: place kubevirt files
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "/etc/hypervisor-setup/{{ item }}"
-  loop:
-    - kubevirt-operator.yaml
-    - kubevirt-cr.yaml
-    - vm.yaml
+#- name: place kubevirt files directory
+#  ansible.builtin.file:
+#    path: /etc/hypervisor-setup
+#    state: directory
+#
+#- name: place kubevirt files
+#  ansible.builtin.copy:
+#    src: "{{ item }}"
+#    dest: "/etc/hypervisor-setup/{{ item }}"
+#  loop:
+#    - kubevirt-operator.yaml
+#    - kubevirt-cr.yaml
+#    - vm.yaml

@@ -40,3 +40,8 @@ $ kubectl get all -n kubevirt
 * even though they are cheap graviton doesn't support virtualization so you need to use an intel.
 * github does not support ipv6 so you have to do that the hardway :(
 
+## RHEL 10 local
+
+* `sudo subscription-manager --enable codeready-builder-for-rhel-9-$(arch)-rpms`
+* `sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm`
+* `sudo dnf install ansible-collection-ansible-posix.noarch ansible-collection-community-general.noarch`

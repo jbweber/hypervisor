@@ -5,7 +5,5 @@
 /terraform/variables/local.tfvars
 /terraform/terraform.tfvars
 
-/playbooks/hosts.ini
-
 /.idea
 
